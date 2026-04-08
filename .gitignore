@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+.env.*
+kaggle.json
+
+# Data files
+data/
+*.csv
+*.xlsx
+*.json
+
+# Results / outputs
+results/
+output/
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# Windows
+Thumbs.db
+
+# Testing / temp files
+temp/
+tmp/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# API cache / temp
+*.cache
+.cache/
