@@ -1,8 +1,7 @@
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*$py.class
 *.so
 
 # Virtual environment
@@ -27,10 +26,6 @@ data/
 # Results / outputs
 results/
 output/
-*.png
-*.jpg
-*.jpeg
-*.pdf
 
 # Logs
 *.log
