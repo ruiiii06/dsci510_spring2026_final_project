@@ -1,21 +1,36 @@
 """
-test.py
-  Step 1: extract_brand_model.py
-  Step 2: fetch_google_trends.py
-
-file structure:
-  test.py
-  extract_brand_model.py
-  fetch_google_trends.py
-  extracted_product_info_amazon.csv - downloaded from kaggle page (link in README), input for Step 1
-
-run with:
-    python test.py
+Pipeline Runner
+  Step 1: extract_brand_model.py  →  results/brand_model_list.csv
+  Step 2: fetch_google_trends.py  →  results/trends_brand.csv
+                                     results/trends_resolution.csv
+                                     results/trends_screen_size.csv
+ 
+File structure:
+  sample_project/
+  ├── data/
+  │   └── extracted_product_info_amazon.csv   ← download from Kaggle (see README)
+  ├── results/                                 ← auto-created on first run
+  ├── src/
+  │   ├── test.py
+  │   ├── extract_brand_model.py
+  │   └── fetch_google_trends.py
+  ├── .gitignore
+  ├── README.md
+  └── requirements.txt
+ 
+Run with (from project root):
+    python src/test.py
 """
 
 import os
 import sys
 import traceback
+from pathlib import Path
+
+SRC_DIR  = Path(__file__).resolve().parent          # .../src/
+ROOT_DIR = SRC_DIR.parent                           # project root
+
+sys.path.insert(0, str(SRC_DIR))  # Ensure src/ is in the import path
 
 import extract_brand_model
 import fetch_google_trends
@@ -25,7 +40,7 @@ import fetch_google_trends
 def run_step(step_no: int, name: str, func):
     """Runs a step function with error handling and prints status."""
     print(f"\n{'═' * 60}")
-    print(f"  Step {step_no} / 3 — {name}")
+    print(f"  Step {step_no} / 2 — {name}")
     try:
         func()
         print(f" Step {step_no} finished successfully.")
@@ -41,10 +56,10 @@ def print_summary():
     print(f"\n{'═' * 60}")
     print("  Run completed — Output file summary")
     files = {
-        "brand_model_list.csv":    "Brand & Model List",
-        "trends_brand.csv":        "Google Trends — Brand Popularity",
-        "trends_resolution.csv":   "Google Trends — Resolution",
-        "trends_screen_size.csv":  "Google Trends — Screen Size",
+        ROOT_DIR / "results" / "brand_model_list.csv":    "Brand & Model List",
+        ROOT_DIR / "results" / "trends_brand.csv":        "Google Trends — Brand Popularity",
+        ROOT_DIR / "results" / "trends_resolution.csv":   "Google Trends — Resolution",
+        ROOT_DIR / "results" / "trends_screen_size.csv":  "Google Trends — Screen Size",
         # "keepa_price_history.csv": "Keepa — Price History",
     }
     for path, desc in files.items():

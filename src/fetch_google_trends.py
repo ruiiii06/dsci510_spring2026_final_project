@@ -13,17 +13,26 @@ Keyword structure:
 
 Dependencies:
     pip install pytrends pandas
+
+Input : results/brand_model_list.csv
+Output: results/trends_brand.csv
+        results/trends_resolution.csv
+        results/trends_screen_size.csv
 """
 
 import time
+from pathlib import Path
 import pandas as pd
 from pytrends.request import TrendReq
 
 # Configuration
-INPUT_CSV           = "brand_model_list.csv"
-OUTPUT_BRAND        = "trends_brand.csv"        # Brand keywords output
-OUTPUT_RESOLUTION   = "trends_resolution.csv"   # Resolution keywords output
-OUTPUT_SCREEN_SIZE  = "trends_screen_size.csv"  # Screen size keywords output
+ROOT = Path(__file__).resolve().parent.parent
+INPUT_CSV           = ROOT / "results" / "brand_model_list.csv"
+OUTPUT_BRAND        = ROOT / "results" / "trends_brand.csv"        # Brand keywords output
+OUTPUT_RESOLUTION   = ROOT / "results" / "trends_resolution.csv"   # Resolution keywords output
+OUTPUT_SCREEN_SIZE  = ROOT / "results" / "trends_screen_size.csv"  # Screen size keywords output
+
+(ROOT / "results").mkdir(parents=True, exist_ok=True)
 
 TIMEFRAME  = "today 12-m"   # Last 12 months
 GEO        = "US"

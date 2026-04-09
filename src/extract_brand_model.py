@@ -6,16 +6,23 @@ deduplicates entries, and outputs brand_model_list.csv.
 Dependencies:
     pip install pandas
 
-Input : extracted_product_info_amazon.csv
-Output: brand_model_list.csv
+Project structure (run from project root or src/):
+    data/    → raw input CSV
+    results/ → output CSV
+
+Input : data/extracted_product_info_amazon.csv
+Output: results/brand_model_list.csv
 """
 
 import re
+from pathlib import Path
 import pandas as pd
 
-INPUT_CSV  = "extracted_product_info_amazon.csv"
-OUTPUT_CSV = "brand_model_list.csv"
+ROOT       = Path(__file__).resolve().parent.parent
+INPUT_CSV  = ROOT / "data" / "extracted_product_info_amazon.csv"
+OUTPUT_CSV = ROOT / "results" / "brand_model_list.csv"
 
+OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)  # Ensure output directory exists
 
 
 def extract_model(title: str, brand: str) -> str:
@@ -41,6 +48,7 @@ def main():
 
     # 1. Load raw data
     df = pd.read_csv(INPUT_CSV)
+    df = df[df["Title"].str.contains("monitor", case=False, na=False)].reset_index(drop=True)
     print(f"Loaded {len(df)} records across {df['Brand'].nunique()} brands.")
 
     # 2. Normalize brand names
