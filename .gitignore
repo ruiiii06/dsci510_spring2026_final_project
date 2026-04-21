@@ -22,6 +22,7 @@ data/
 *.csv
 *.xlsx
 *.json
+*.png
 
 # Results / outputs
 results/
