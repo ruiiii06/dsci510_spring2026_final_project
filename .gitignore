@@ -22,7 +22,6 @@ data/
 *.csv
 *.xlsx
 *.json
-*.png
 
 # Results / outputs
 results/
@@ -37,6 +36,7 @@ results/
 Thumbs.db
 
 # Testing / temp files
+*.png
 temp/
 tmp/
 
