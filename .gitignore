@@ -25,7 +25,6 @@ data/
 
 # Results / outputs
 results/
-output/
 
 # Logs
 *.log

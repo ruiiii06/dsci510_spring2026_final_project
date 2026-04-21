@@ -1,2 +1,8 @@
-pandas==2.3.3
-pytrends==4.9.2
+pandas
+pytrends
+playwright
+matplotlib
+seaborn
+statsmodels
+python-dotenv
+kagglehub
