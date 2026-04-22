@@ -58,7 +58,8 @@ def load_all_data() -> pd.DataFrame:
     products = products[["Title", "Brand", "Screen Size", "Resolution", "Price"]]
     scraped = scraped[scraped["status"] == "success"]
     scraped["ratings_total"] = pd.to_numeric(scraped["ratings_total"], errors="coerce")
-    scraped = scraped[scraped["ratings_total"] <= 50000]
+    # scraped = scraped[scraped["ratings_total"] <= 50000]
+    scraped = scraped[(scraped["ratings_total"] >= 5) & (scraped["ratings_total"] <= 50000)]
 
 
     df = products.merge(scraped[["input_title", "rating", "ratings_total"]].rename(columns={"input_title": "Title", "rating": "Rating", "ratings_total": "Reviews"}), on="Title", how="inner")

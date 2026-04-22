@@ -24,23 +24,23 @@ if __name__ == "__main__":
     print(f"Cleaned data saved to {config.CLEANED_CSV}")
 
     # Step 2: fetch trends
-    df_brand, df_resolution, df_screen_size = process.fetch_all_trends(df)
-    df_brand.to_csv(config.TRENDS_BRAND_CSV, index=False)
-    print(f"Brand trends saved to {config.TRENDS_BRAND_CSV}")
+    # df_brand, df_resolution, df_screen_size = process.fetch_all_trends(df)
+    # df_brand.to_csv(config.TRENDS_BRAND_CSV, index=False)
+    # print(f"Brand trends saved to {config.TRENDS_BRAND_CSV}")
 
-    df_resolution.to_csv(config.TRENDS_RES_CSV, index=False)
-    print(f"Resolution trends saved to {config.TRENDS_RES_CSV}")
+    # df_resolution.to_csv(config.TRENDS_RES_CSV, index=False)
+    # print(f"Resolution trends saved to {config.TRENDS_RES_CSV}")
 
-    df_screen_size.to_csv(config.TRENDS_SIZE_CSV, index=False)
-    print(f"Screen size trends saved to {config.TRENDS_SIZE_CSV}")
+    # df_screen_size.to_csv(config.TRENDS_SIZE_CSV, index=False)
+    # print(f"Screen size trends saved to {config.TRENDS_SIZE_CSV}")
 
     # Step 3: scrape the Amazon URLs
-    titles = load.load_titles_from_csv(config.CLEANED_CSV)
-    df = process.get_ratings_from_titles(titles)
-    df.to_csv(config.AMAZON_DATA_CSV, index=False)
-    print(f"The product data scraped saved to {config.AMAZON_DATA_CSV}")
+    # titles = load.load_titles_from_csv(config.CLEANED_CSV)
+    # df = process.get_ratings_from_titles(titles)
+    # df.to_csv(config.AMAZON_DATA_CSV, index=False)
+    # print(f"The product data scraped saved to {config.AMAZON_DATA_CSV}")
 
     # Step 4: analyze
     df = load.load_all_data()
     analysis.correlation_analysis(df)
-    m1a, m1b = analysis.model_popularity(df)
+    m1a, m1b, m1c = analysis.model_popularity(df)

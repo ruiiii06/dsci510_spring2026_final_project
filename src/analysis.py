@@ -30,20 +30,18 @@ def correlation_analysis(df: pd.DataFrame):
 
 
 def plot_coefficients(model, title: str, filename: str):
-    coef  = model.params.drop("Intercept")
-    ci    = model.conf_int().drop("Intercept")
-    pvals = model.pvalues.drop("Intercept")
+    coef = model.params.drop(["Intercept", "alpha"], errors="ignore")
+    ci   = model.conf_int().drop(["Intercept", "alpha"], errors="ignore")
+    pvals = model.pvalues.drop(["Intercept", "alpha"], errors="ignore")
 
-    labels = [n.replace("C(Brand)[T.", "Brand: ").replace("]", "").replace("_", " ")
-              for n in coef.index]
+    labels = [n.replace("_", " ") for n in coef.index]
     colors = ["#4C72B0" if p < 0.05 else "#AABDD6" for p in pvals]
 
-    fig, ax = plt.subplots(figsize=(8, max(5, len(coef) * 0.45)))
+    fig, ax = plt.subplots(figsize=(8, 5))
     y = range(len(coef))
 
     ax.barh(list(y), coef, color=colors, alpha=0.85)
-    ax.errorbar(coef, list(y),
-                xerr=[coef - ci[0], ci[1] - coef],
+    ax.errorbar(coef, list(y), xerr=[coef - ci[0], ci[1] - coef],
                 fmt="none", color="black", capsize=3)
     ax.axvline(0, color="black", linewidth=0.8, linestyle="--")
     ax.set_yticks(list(y))
@@ -60,30 +58,47 @@ def plot_coefficients(model, title: str, filename: str):
 
 def model_popularity(df: pd.DataFrame):
     df = df.copy()
-    df["log_rt"] = np.log1p(df["Reviews"])
+    # df["log_rt"] = np.log1p(df["Reviews"])
 
-    model_1 = smf.ols("log_rt ~ Brand_Trend + Resolution_Trend + Price", data=df).fit()
+    model_1 = smf.ols("Reviews ~ Brand_Trend + Resolution_Trend + Price", data=df).fit()
+    # model_1 = smf.negativebinomial("Reviews ~ Brand_Trend + Resolution_Trend + Price", data=df).fit()
     print(model_1.summary())
     print(f"Model 1: n={len(df)}, R²={model_1.rsquared:.3f}")
+    # print(f"Model 1: n={len(df)}, Pseudo R²={model_1.prsquared:.3f}")
 
     plot_coefficients(
         model_1,
-        title="Independent Effect of Each Factor on Log(Review Count)",
+        title="Independent Effect of Each Factor on Review Count (ols)",
         filename="model_1_coefficients.png"
     )
     
     df_2 = df.dropna(subset=["Size_Trend"])
 
-    model_2 = smf.ols("log_rt ~ Size_Trend + Price", data=df_2).fit()
+    model_2 = smf.ols("Reviews ~ Size_Trend + Price", data=df_2).fit()
+    # model_2 = smf.negativebinomial("Reviews ~ Size_Trend + Price", data=df_2).fit()
     print(model_2.summary())
     print(f"Model 2: n={len(df_2)}, R²={model_2.rsquared:.3f}")
+    # print(f"Model 2: n={len(df_2)}, Pseudo R²={model_2.prsquared:.3f}")
+
 
     plot_coefficients(
         model_2,
-        title="Independent Effect of Screen Size Trend on Log(Review Count)",
+        title="Independent Effect of Screen Size Trend on Review Count (ols)",
         filename="model_2_coefficients.png"
     )
 
-    return model_1, model_2
+
+    model_3 = smf.ols("Price ~ Brand_Trend + Resolution_Trend + Size_Trend", data=df_2).fit()
+    print(model_3.summary())
+    print(f"Model 1: n={len(df_2)}, R²={model_3.rsquared:.3f}")
+    # print(f"Model 1: n={len(df)}, Pseudo R²={model_1.prsquared:.3f}")
+
+    plot_coefficients(
+        model_3,
+        title="Independent Effect of Factors on Price (ols)",
+        filename="model_3_coefficients.png"
+    )
+
+    return model_1, model_2, model_3
 
 
