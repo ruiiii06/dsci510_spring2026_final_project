@@ -21,12 +21,15 @@ Generative AI used: Claude (Anthropic) and ChatGPT (OpenAI) were used to assist 
 
 ## Analysis
 **Correlation Analysis**
+
 Pearson correlation matrix across all numeric variables (Reviews, Price, Brand Trend, Resolution Trend, Size Trend, Rating) to identify relationships before modeling.
 
 **Regression model**
-Ordinary least squares (OLS) models are built. Negative Binomial model is tested as well, which is more appropriate for count data, but the results are largely consistent.
+
+Ordinary least squares (OLS) models are built. Negative Binomial model is tested as well, which is more appropriate for count data, but the results are largely consistent. 
 
 Model 1a/1b examines how price and Google Trends market demand signals affect product popularity, while Model 2 examines how market demand signals drive product pricing. Model 1b is tested independently due to a higher rate of missing values in Screen_Size data.
+
 ---
 
 ## Summary of the Results
