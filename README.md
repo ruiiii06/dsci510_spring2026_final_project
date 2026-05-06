@@ -19,13 +19,22 @@ Generative AI used: Claude (Anthropic) and ChatGPT (OpenAI) were used to assist 
 | Amazon (web scraping) | https://www.amazon.com/ | Web page | rating, review count | html | yes | ~300 data points |
 ---
 
-## Results
+## Analysis
+**Correlation Analysis**
+Pearson correlation matrix across all numeric variables (Reviews, Price, Brand Trend, Resolution Trend, Size Trend, Rating) to identify relationships before modeling.
+
+**Regression model**
+Ordinary least squares (OLS) models are built. Negative Binomial model is tested as well, which is more appropriate for count data, but the results are largely consistent.
+
+Model 1a/1b examines how price and Google Trends market demand signals affect product popularity, while Model 2 examines how market demand signals drive product pricing. Model 1b is tested independently due to a higher rate of missing values in Screen_Size data.
+---
+
+## Summary of the Results
 
 Review count is highly right-skewed, which means that a small number of products dominate in popularity.
 
 Correlation analysis shows weak relationships between all variables and review count (max r = 0.16), while the strongest relationships are associated with price.
 
-Ordinary least squares (OLS) models are built, Model 1a/1b examines how price and Google Trends market demand signals affect product popularity, while Model 2 examines how market demand signals drive product pricing.
 Model 1a: R² = 0.034. Price and Resolution_Trend do not significantly predict review count, and Brand_Trend is statistically significant with a modest positive effect.
 Model 1b: R² = 0.000. Size_Trend shows no significant independent effect on review count.
 Model 2: R² = 0.233. Price is partially explained by resolution trend and brand trend.
@@ -53,6 +62,9 @@ Findings suggest review count may be driven by factors not captured in this data
 
 Results will appear in `results/` folder. All obtained will be stored in `data/`
 
-- Run notebook
+
+- Run notebook:
+
 Open `results.ipynb` in Jupyter or VS Code and run all cells.
+
 **Note**: In step 3, the scraping step uses Playwright Sync API, which conflicts with Jupyter's asyncio loop. It is recommended to run this step from the terminal `python main.py --scrape` rather than from the notebook.
