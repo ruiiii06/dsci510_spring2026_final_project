@@ -74,3 +74,8 @@ Results will appear in `results/` folder. All obtained will be stored in `data/`
 Open `results.ipynb` in Jupyter or VS Code and run all cells.
 
 **Note**: In step 3, the scraping step uses Playwright Sync API, which conflicts with Jupyter's asyncio loop. It is recommended to run this step from the terminal `python main.py --scrape` rather than from the notebook.
+
+
+- Run Test:
+
+`python test.py`
