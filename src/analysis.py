@@ -29,13 +29,13 @@ def correlation_analysis(df: pd.DataFrame):
     print(pairs.head(5).round(3))
 
 
-def plot_coefficients(model, title: str, filename: str):
+def plot_coefficients(model, title: str, filename: str, r2: float = None):
     coef = model.params.drop(["Intercept", "alpha"], errors="ignore")
     ci   = model.conf_int().drop(["Intercept", "alpha"], errors="ignore")
     pvals = model.pvalues.drop(["Intercept", "alpha"], errors="ignore")
 
     labels = [n.replace("_", " ") for n in coef.index]
-    colors = ["#4C72B0" if p < 0.05 else "#AABDD6" for p in pvals]
+    colors = ["#3060AC" if p < 0.05 else "#A5B7CF" for p in pvals]
 
     fig, ax = plt.subplots(figsize=(8, 5))
     y = range(len(coef))
@@ -48,15 +48,20 @@ def plot_coefficients(model, title: str, filename: str):
     ax.set_yticklabels(labels, fontsize=9)
     ax.set_title(title)
 
-    legend = [mpatches.Patch(color="#4C72B0", label="p < 0.05"),
-              mpatches.Patch(color="#AABDD6", label="p ≥ 0.05")]
+    legend = [mpatches.Patch(color="#3060AC", label="p < 0.05"),
+              mpatches.Patch(color="#A5B7CF", label="p ≥ 0.05")]
     ax.legend(handles=legend, fontsize=8)
+
+    if r2 is not None:
+        ax.text(0.01, 0.98, f"R² = {r2:.3f}", transform=ax.transAxes,
+                fontsize=9, ha="right", va="bottom", color="blue",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8, edgecolor="none"))
     plt.tight_layout()
     fig.savefig(os.path.join(config.RESULTS_DIR, filename), dpi=150)
     plt.close(fig)
     
 
-def model_popularity(df: pd.DataFrame):
+def main_model(df: pd.DataFrame):
     df = df.copy()
     # df["log_rt"] = np.log1p(df["Reviews"])
 
@@ -69,7 +74,8 @@ def model_popularity(df: pd.DataFrame):
     plot_coefficients(
         model_1,
         title="Independent Effect of Each Factor on Review Count (ols)",
-        filename="model_1_coefficients.png"
+        filename="model_1_coefficients.png",
+        r2=model_1.rsquared
     )
     
     df_2 = df.dropna(subset=["Size_Trend"])
@@ -84,19 +90,21 @@ def model_popularity(df: pd.DataFrame):
     plot_coefficients(
         model_2,
         title="Independent Effect of Screen Size Trend on Review Count (ols)",
-        filename="model_2_coefficients.png"
+        filename="model_2_coefficients.png",
+        r2=model_2.rsquared
     )
 
 
     model_3 = smf.ols("Price ~ Brand_Trend + Resolution_Trend + Size_Trend", data=df_2).fit()
     print(model_3.summary())
-    print(f"Model 1: n={len(df_2)}, R²={model_3.rsquared:.3f}")
-    # print(f"Model 1: n={len(df)}, Pseudo R²={model_1.prsquared:.3f}")
+    print(f"Model 3: n={len(df_2)}, R²={model_3.rsquared:.3f}")
+    # print(f"Model 3: n={len(df)}, Pseudo R²={model_1.prsquared:.3f}")
 
     plot_coefficients(
         model_3,
         title="Independent Effect of Factors on Price (ols)",
-        filename="model_3_coefficients.png"
+        filename="model_3_coefficients.png",
+        r2=model_3.rsquared
     )
 
     return model_1, model_2, model_3

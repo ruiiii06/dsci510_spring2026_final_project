@@ -53,24 +53,38 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
 # 2. Google Trends fetching
 def fetch_batch(pytrends, batch) -> pd.Series:
-    pytrends.build_payload(batch, timeframe=config.TIMEFRAME, geo=config.GEO)
-    trends = pytrends.interest_over_time()
-    if not trends.empty:
-        return trends.drop(columns=['isPartial'], errors='ignore').mean()
-    else:
-        print(f"No trends data found for batch: {batch}")
-        return pd.Series(dtype=float)
+    for attempt in range(3):
+        try:
+            pytrends.build_payload(batch, timeframe=config.TIMEFRAME, geo=config.GEO)
+            trends = pytrends.interest_over_time()
+
+            if not trends.empty:
+                return trends.drop(columns=['isPartial'], errors='ignore').mean()
+            else:
+                print(f"No trends data found for batch: {batch}")
+                return pd.Series(dtype=float)
+
+        except Exception as e:
+            if "429" in str(e):
+                wait = 30 * (attempt + 1) + random.randint(10, 40)
+                print(f"429 rate limited. Waiting {wait} seconds before retry...")
+                time.sleep(wait)
+            else:
+                print(f"Other error building payload: {e}")
+                return pd.Series(dtype=float)
+    
+    print(f"Failed after 3 attempts: {batch}")
+    return pd.Series(dtype=float)
 
 
 def fetch_brand_trends(df: pd.DataFrame) -> pd.Series:
     # extract unique brands appearing more than BRAND_MIN_COUNT times
-    # use generative AI to address the issue of excessive comparisons (the number of items exceeds 5)
     counts = df["Brand"].value_counts()
     brands = counts[counts >= BRAND_MIN_COUNT].index.tolist()
     keywords = [f"{b} monitor" for b in brands if isinstance(b, str) and b.strip()]
 
     
-    pytrends = TrendReq(hl="en-US", tz=360, timeout=(10, 25))
+    pytrends = TrendReq(hl="en-US", tz=360, timeout=(10, 25), requests_args={'headers': {'User-Agent': 'Mozilla/5.0'}})
     step = config.BATCH_SIZE - config.OVER_LAP
     batches, i = [], 0
     while i < len(keywords):
@@ -95,7 +109,7 @@ def fetch_brand_trends(df: pd.DataFrame) -> pd.Series:
         raise RuntimeError("Failed to fetch trends for all batches. No data collected.")
 
 
-    # Chain normalized batch trends together
+    # normalize batch trends together
     normalized_srs = [batch_srs[0]]
 
     for i in range(1, len(batch_srs)):
@@ -103,20 +117,10 @@ def fetch_brand_trends(df: pd.DataFrame) -> pd.Series:
         curr = batch_srs[i]
         overlap_kws = [kw for kw in curr.index if kw in prev.index]
 
-        if not overlap_kws:
-            print(f"No overlap between batch {i} and batch {i+1}.")
-            normalized_srs.append(curr)
-            continue
-
         ratios = []
         for kw in overlap_kws:
             if pd.notna(prev[kw]) and pd.notna(curr[kw]) and curr[kw] != 0:
                 ratios.append(prev[kw] / curr[kw])
-        
-        if not ratios:
-            print(f"No valid ratios for normalization between batch {i} and batch {i+1}.")
-            normalized_srs.append(curr)
-            continue
 
         scale = pd.Series(ratios).median()
 
@@ -126,7 +130,7 @@ def fetch_brand_trends(df: pd.DataFrame) -> pd.Series:
         normalized_srs.append(curr_scaled)
 
 
-    # Combine all normalized batches into one series
+    # combine all normalized batches into one series
     result = normalized_srs[0]
     for srs in normalized_srs[1:]:
         new_kws = [kw for kw in srs.index if kw not in result.index]
@@ -136,9 +140,9 @@ def fetch_brand_trends(df: pd.DataFrame) -> pd.Series:
     return result
 
 
+# AI generated to solve the synonym merging problem:
 def fetch_resolution_trends() -> pd.DataFrame:
-    # use generative AI to solve the synonym merging problem
-    pytrends = TrendReq(hl="en-US", tz=360, timeout=(10, 25))
+    pytrends = TrendReq(hl="en-US", tz=360, timeout=(10, 25), requests_args={'headers': {'User-Agent': 'Mozilla/5.0'}})
     records  = []
  
     for tier, synonyms in config.RESOLUTION_KEYWORDS_GROUPS.items():
@@ -151,7 +155,7 @@ def fetch_resolution_trends() -> pd.DataFrame:
                 continue
  
             anchor = srs[config.TRENDS_ANCHOR_KEYWORD] or float("nan")
-            # Normalize each synonym by anchor, then sum them to get composite score
+            # normalize each synonym by anchor, then sum them to get composite score
             composite = sum(srs[kw] / anchor for kw in synonyms if kw in srs.index)
             records.append({"resolution_tier": tier, "avg_trend": composite})
  
@@ -166,7 +170,7 @@ def fetch_resolution_trends() -> pd.DataFrame:
 
 
 def fetch_screen_size_trends() -> pd.DataFrame:
-    pytrends = TrendReq(hl="en-US", tz=360, timeout=(10, 25))
+    pytrends = TrendReq(hl="en-US", tz=360, timeout=(10, 25), requests_args={'headers': {'User-Agent': 'Mozilla/5.0'}})
  
     srs = fetch_batch(pytrends, config.SCREEN_SIZE_KEYWORDS)
     if srs.empty:
@@ -219,7 +223,7 @@ def clean_search_term(title: str) -> str:
     
     return title.strip()
 
-# use generative AI to simulate real browser behavior via Playwright
+# AI generated to simulate real browser behavior via Playwright:
 def setup_browser(playwright):
     browser = playwright.chromium.launch(
         headless=config.HEADLESS,
@@ -325,7 +329,7 @@ def get_ratings_from_titles(titles: list[str]) -> pd.DataFrame:
         page = context.new_page()
 
         # visit Amazon homepage first to get cookies
-        print("Accessing Amazon homepage to get cookies.")
+        print("Accessing Amazon homepage to get cookies.", flush=True)
         page.goto(f"https://www.{config.AMAZON_DOMAIN}", wait_until="domcontentloaded", timeout=20_000)
         time.sleep(2)
 
@@ -335,8 +339,8 @@ def get_ratings_from_titles(titles: list[str]) -> pd.DataFrame:
             time.sleep(config.REQUEST_DELAY + random.uniform(0.5, 1.0))
 
             if i % 10 == 0:
-                print(f"Processed {i}/{len(titles)} items")
-                print(record)
+                print(f"Processed {i}/{len(titles)} items", flush=True)
+                # print(record)
 
         browser.close()
 

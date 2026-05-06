@@ -21,6 +21,12 @@ TRENDS_RES_CSV       = RESULTS_DIR / "trends_resolution.csv"
 TRENDS_SIZE_CSV      = RESULTS_DIR / "trends_screen_size.csv"
 RAINFOREST_DATA_CSV  = RESULTS_DIR / "rainforest_data.csv"
 AMAZON_DATA_CSV      = RESULTS_DIR / "amazon_data.csv"
+TRENDS_SUMMARY     = RESULTS_DIR / "trends_combined.png"
+DISTRIBUTION_PLOT   = RESULTS_DIR / "review_distribution.png"
+CORRELATION_MATRIX_PLOT = RESULTS_DIR / "correlation_matrix.png"
+MODEL_1_PLOT       = RESULTS_DIR / "model_1_coefficients.png"
+MODEL_2_PLOT       = RESULTS_DIR / "model_2_coefficients.png"
+MODEL_3_PLOT       = RESULTS_DIR / "model_3_coefficients.png"
 
 STANDARD_SIZE = [24, 27, 32, 34]    # inches
 SCREEN_SIZE_MARGIN = 1.0            # +/- margin for screen size matching (inches)
@@ -35,7 +41,7 @@ RESOLUTION_MAP = [
 TIMEFRAME  = "today 12-m"
 GEO        = "US"
 BATCH_SIZE = 5
-SLEEP_SEC  = 10
+SLEEP_SEC  = 15
 OVER_LAP   = 2
 
 TRENDS_ANCHOR_KEYWORD = "computer monitor"

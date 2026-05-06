@@ -2,7 +2,9 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from statsmodels.api import load
 import config
+import load
 
 sns.set_theme(style="whitegrid", palette="colorblind")
 COLORS = sns.color_palette("colorblind")
@@ -70,6 +72,43 @@ def plot_trends_combined(t_brand, t_res, t_size):
     plt.tight_layout()
     save(fig, "trends_combined.png")
 
+def plot_scatter_with_r2(df):
+    import numpy as np
+    from scipy import stats
+
+    pairs = [
+        ("Brand_Trend",      "Reviews", "Brand Trend vs Reviews"),
+        ("Resolution_Trend", "Reviews", "Resolution Trend vs Reviews"),
+        ("Size_Trend",       "Reviews", "Size Trend vs Reviews"),
+        ("Price",            "Reviews", "Price vs Reviews"),
+        ("Brand_Trend",      "Price",   "Brand Trend vs Price"),
+        ("Resolution_Trend", "Price",   "Resolution Trend vs Price"),
+    ]
+
+    fig, axes = plt.subplots(2, 3, figsize=(15, 9))
+    axes = axes.flatten()
+
+    for ax, (x_col, y_col, title) in zip(axes, pairs):
+        subset = df[[x_col, y_col]].dropna()
+        x = subset[x_col]
+        y = subset[y_col]
+
+        ax.scatter(x, y, alpha=0.5, edgecolors="white", linewidths=0.3)
+
+        # regression line + R²
+        slope, intercept, r, *_ = stats.linregress(x, y)
+        x_line = np.linspace(x.min(), x.max(), 100)
+        ax.plot(x_line, slope * x_line + intercept, color="red", linewidth=1.2)
+
+        ax.set_xlabel(x_col.replace("_", " "))
+        ax.set_ylabel(y_col)
+        ax.set_title(title)
+        ax.text(0.05, 0.92, f"R² = {r**2:.3f}", transform=ax.transAxes,
+                fontsize=9, color="red")
+
+    plt.tight_layout()
+    save(fig, "scatter_r2.png")
+
 
 
 def main():
@@ -80,6 +119,8 @@ def main():
     plot_review_distribution(df)
     plot_trends_combined(t_brand, t_res, t_size)
 
+    df = load.load_all_data()
+    plot_scatter_with_r2(df)
     print("charts saved to results/")
 
 

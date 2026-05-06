@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.DS_Store
 
 # Virtual environment
 venv/
@@ -14,7 +15,6 @@ env/
 
 # Environment variables
 .env
-.env.*
 kaggle.json
 
 # Data files
