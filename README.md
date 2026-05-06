@@ -51,8 +51,11 @@ Findings suggest review count may be driven by factors not captured in this data
 - No API keys are required.
 
 - Install dependencies: 
+
 `pip install -r requirements.txt`
+
 `# Download Chromium for Playwright (one-time setup)`
+
 `playwright install chromium`
 
 ---
